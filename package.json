@@ -13,5 +13,8 @@
     "eslint": "^3.16.1",
     "mocha": "^3.2.0",
     "rewire": "^2.5.2"
+  },
+  "dependencies": {
+    "lodash": "^4.17.4"
   }
 }
