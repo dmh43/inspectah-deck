@@ -4,7 +4,7 @@ var http = require('http')
 
 module.exports = function (done) {
   const quotesUrl = 'http://quotes.rest/qod.json'
-  http.request(quotesUrl, function(response) {
+  http.get(quotesUrl, function(response) {
     var str = ''
     response.on('data', function (chunk) {
       str += chunk

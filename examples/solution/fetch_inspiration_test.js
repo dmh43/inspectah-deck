@@ -14,7 +14,7 @@ const stubs = {}
 const mockStream = buildMockStream(JSON.stringify(mockResponse))
 const revertRewire = fetchInspiration.__set__({
   http: {
-    request: function(url, done) {
+    get: function(url, done) {
       done(mockStream)
     }
   }
