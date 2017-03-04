@@ -19,8 +19,6 @@ const revertRewire = fetchInspiration.__set__({
 })
 
 var stub = inspectah(fetchInspiration, 'yields', null, quoteOfTheDay)
-inspectah(JSON.parse.bind(this, "(}"), 'throws', SyntaxError)
-inspectah(JSON.stringify.bind(this, 10), 'returns', '10')
 
 
 revertRewire()

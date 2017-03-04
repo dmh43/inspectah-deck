@@ -55,26 +55,44 @@ const inspectahDeck = {
   }
 }
 
+const createStub = function(action, claimToTest) {
+  const stub = sinon.stub()
+  return stub[action].apply(stub, claimToTest.calledWith)
+}
+
 const inspectah = function (fn, action) {
-  var stack = new Error().stack
+  var outcome
+  const stack = new Error().stack
   const rest = Array.prototype.slice.call(arguments, 2)
   const claimToTest = inspectahDeck[action].getClaimToTest(rest)
-  if (claimToTest.callback) {
-    var callback = function() {
-      inspectahDeck[action].assessOutcome([...arguments], claimToTest, stack)
+  const stub = createStub(action, claimToTest)
+  return new Promise(function(resolve, reject) {
+    if (claimToTest.callback) {
+      fn(function() {
+        outcome = inspectahDeck[action].assessOutcome([...arguments], claimToTest, stack)
+        if (outcome) {
+          reject(outcome)
+        } else {
+          resolve(stub)
+        }
+      })
+    } else if (claimToTest.promise) {
+      reject("To be implemented!")
+    } else {
+      var error, result
+      try {
+        result = fn()
+      } catch (err) {
+        error = err
+      }
+      outcome = inspectahDeck[action].assessOutcome({error: error, result: result}, claimToTest, stack)
+      if (outcome) {
+        reject(outcome)
+      } else {
+        resolve(stub)
+      }
     }
-    fn(callback)
-  } else {
-    var error, result
-    try {
-      result = fn()
-    } catch (err) {
-      error = err
-    }
-    inspectahDeck[action].assessOutcome({error: error, result: result}, claimToTest, stack)
-  }
-  var stub = sinon.stub()
-  return stub[action].apply(stub, claimToTest.calledWith)
+  })
 }
 
 module.exports = inspectah
