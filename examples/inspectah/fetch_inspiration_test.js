@@ -5,6 +5,7 @@ const inspectah = require('../../inspectah')
 const mockResponse = require('./fixtures/inspiration_response')
 const quoteOfTheDay = require('./fixtures/quote_of_the_day')
 const rewire = require('rewire')
+const sinon = require('sinon')
 
 const fetchInspiration = rewire('./fetch_inspiration')
 
@@ -18,6 +19,8 @@ const revertRewire = fetchInspiration.__set__({
 })
 
 var stub = inspectah(fetchInspiration, 'yields', null, quoteOfTheDay)
+inspectah(JSON.parse.bind(this, "(}"), 'throws', new SyntaxError("Unexpected token ("))
+inspectah(JSON.stringify.bind(this, 10), 'returns', '10')
 
 
 revertRewire()
