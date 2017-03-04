@@ -1,6 +1,7 @@
 "use strict"
 
-const expectedYelling = "GET UP. BECAUSE MICKEY LOVES YA"
+const quoteOfTheDay = require('./fixtures/quote_of_the_day')
+const expectedYelling = quoteOfTheDay.toUpperCase()
 
 const assert = require('assert')
 const rewire = require('rewire')
