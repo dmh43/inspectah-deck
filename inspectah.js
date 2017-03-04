@@ -3,55 +3,54 @@
 const _ = require('lodash')
 const sinon = require('sinon')
 
+const protectYaNeck = {
+  areEqual: function (result, expected, stack) {
+    const areEqual = _.isEqual(result, expected)
+    if (!areEqual) {
+      console.log("The assumption this stub makes is invalid!")
+      console.log(stack)
+      console.log(_.toString(result))
+      console.log("is not equal to")
+      console.log(_.toString(expected))
+    }
+  },
+  check: function (result, expected, checker, failMessage, stack) {
+    const success = checker(result, expected)
+    if (!success) {
+      console.log("The assumption this stub makes is invalid!")
+      console.log(stack)
+      console.log(_.toString(result))
+      console.log(failMessage)
+      console.log(_.toString(expected))
+    }
+  }
+}
+
 const inspectahDeck = {
   yields: {
     getClaimToTest: function (args) {
       return {callback: true, calledWith: args}
     },
-    assessOutcome: function (expected, claimToTest, stack) {
-      const result = claimToTest.calledWith
-      const areEqual = _.isEqual(result, expected)
-      if (!areEqual) {
-        console.log("The assumption this stub makes is invalid!")
-        console.log(stack)
-        console.log(_.toString(result))
-        console.log("is not equal to")
-        console.log(_.toString(expected))
-      }
+    assessOutcome: function (result, claimToTest, stack) {
+      protectYaNeck.areEqual(result, claimToTest.calledWith, stack)
     }
   },
   throws: {
     getClaimToTest: function(args) {
       return {errorThrown: args[0]}
     },
-    assessOutcome: function (expected, claimToTest, stack) {
-      const expectedErr = expected.error
-      const result = claimToTest.errorThrown
-      const areEqual = _.isEqual(result, expectedErr)
-      if (!areEqual) {
-        console.log("The assumption this stub makes is invalid!")
-        console.log(stack)
-        console.log(_.toString(result))
-        console.log("is not equal to")
-        console.log(_.toString(expectedErr))
-      }
+    assessOutcome: function (result, claimToTest, stack) {
+      protectYaNeck.check(result.error, claimToTest.errorThrown, function(val, prototype) {
+        return val instanceof prototype
+      }, "is not an instance of", stack)
     }
   },
   returns: {
     getClaimToTest: function(args) {
       return {returnVal: args[0]}
     },
-    assessOutcome: function (expected, claimToTest, stack) {
-      const expectedReturnVal = expected.result
-      const result = claimToTest.returnVal
-      const areEqual = _.isEqual(result, expectedReturnVal)
-      if (!areEqual) {
-        console.log("The assumption this stub makes is invalid!")
-        console.log(stack)
-        console.log(_.toString(result))
-        console.log("is not equal to")
-        console.log(_.toString(expectedReturnVal))
-      }
+    assessOutcome: function (result, claimToTest, stack) {
+      protectYaNeck.areEqual(result.result, claimToTest.returnVal, stack)
     }
   }
 }
