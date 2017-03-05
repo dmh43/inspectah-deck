@@ -1,0 +1,27 @@
+* inSpectahDeck and the Wu-Tang test style
+A tool for testing stubs
+** Motivation
+Stubs make tests more useful by isolating test failures to the code
+related to the breakage. For example, if a function ~foo~ is called
+from a function ~bar~, if ~foo~ breaks, the tests for ~foo~ and ~bar~
+will both fail. By stubbing out ~foo~ in the tests for ~bar~, we
+ensure that only the test for ~foo~ fails. This helps the developer
+identify the source of the breakage quicker.
+
+The risk is that if a stub makes an incorrect assumption, or if the
+behavior of the stubbed out function changes, the tests may pass even
+though the code is actually broken.
+
+** Examples
+
+See the ~/examples/~ directory in this repo. The ~problem~ directory
+contains an example demonstrating the risk that lazy stubbing
+creates. The ~fetchYellingInspiraction~ method expects
+~fetchInspiration~ to return a promise. The stub for
+~fetchInspiration~ in ~fetch_yelling_inspiration_test.js~ returns a
+promise. However, the function in ~fetch_inspiration.js~ actually
+takes a callback, rather than returning a promise. The tests in this
+directory pass even though the code is broken (due to the stub making
+an invalid assumption). The ~solution~ directory shows how
+~inSpectahDeck~ is used to mitigate this issue. The tests in this
+directory fail as expected.
