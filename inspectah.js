@@ -61,7 +61,16 @@ const inspectahDeck = {
 
 const createStub = function(action, claimToTest) {
   const stub = sinon.stub()
-  return stub[action].apply(stub, claimToTest.calledWith)
+  switch (action) {
+  case 'yields':
+    return stub[action].apply(stub, claimToTest.calledWith)
+  case 'throws':
+    return stub[action](new claimToTest.errorThrown)
+  case 'returns':
+    return stub[action](claimToTest.returnVal)
+  default:
+    return new Error('Not implemented yet!')
+  }
 }
 
 const inspectah = function (fn, action) {

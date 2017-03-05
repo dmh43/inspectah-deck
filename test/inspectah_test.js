@@ -13,14 +13,31 @@ describe('inspectah', function () {
   describe('returns', function () {
     describe('the assumption made by the stub is valid', function() {
       beforeEach(function() {
-        const fnToStub = function () {
+        this.fnToStub = function () {
           return 3
         }
-        this.result = inspectah(fnToStub, 'returns', 3)
+        this.outcomeOrStubPromise = inspectah(this.fnToStub, 'returns', 3)
       })
 
       it('resolves to a stub', function () {
-        return expect(this.result).to.eventually.be.a('function')
+        return expect(this.outcomeOrStubPromise).to.eventually.be.a('function')
+      })
+
+      describe('the stub', function() {
+        before(function(done) {
+          this.outcomeOrStubPromise.then((stub) => {
+            this.stub = stub
+            done()
+          })
+        })
+
+        it('returns the expected value when called', function() {
+          expect(this.stub()).to.eql(3)
+        })
+
+        it('is not the same as the original function', function() {
+          expect(this.stub).to.not.eql(this.fnToStub)
+        })
       })
     })
 
@@ -38,15 +55,32 @@ describe('inspectah', function () {
   describe('throws', function() {
     describe('the assumption made by the stub is valid', function() {
       beforeEach(function() {
-        const fnToStub = function (){
+        this.fnToStub = function (){
           throw new Error()
         }
-        this.result = inspectah(fnToStub, 'throws', Error)
-        return this.result
+        this.outcomeOrStubPromise = inspectah(this.fnToStub, 'throws', Error)
+        return this.outcomeOrStubPromise
       })
 
       it('resolves to a stub', function() {
-        return expect(this.result).to.eventually.be.a('function')
+        return expect(this.outcomeOrStubPromise).to.eventually.be.a('function')
+      })
+
+      describe('the stub', function() {
+        before(function(done) {
+          this.outcomeOrStubPromise.then((stub) => {
+            this.stub = stub
+            done()
+          })
+        })
+
+        it('throws the expected error when called', function() {
+          expect(this.stub).to.throw(Error)
+        })
+
+        it('is not the same as the original function', function() {
+          expect(this.stub).to.not.eql(this.fnToStub)
+        })
       })
     })
 
@@ -64,15 +98,36 @@ describe('inspectah', function () {
   describe('yields', function() {
     describe('the assumption made by the stub is valid', function() {
       beforeEach(function() {
-        const fnToStub = function(done) {
+        this.fnToStub = function(done) {
           done(null, 10)
         }
-        this.result = inspectah(fnToStub, 'yields', null, 10)
-        return this.result
+        this.outcomeOrStubPromise = inspectah(this.fnToStub, 'yields', null, 10)
+        return this.outcomeOrStubPromise
       })
 
       it('resolves to a stub', function() {
-        return expect(this.result).to.eventually.be.a('function')
+        return expect(this.outcomeOrStubPromise).to.eventually.be.a('function')
+      })
+
+      describe('the stub', function() {
+        before(function(done) {
+          this.outcomeOrStubPromise.then((stub) => {
+            this.stub = stub
+            done()
+          })
+        })
+
+        it('yields the expected values when called', function(done) {
+          this.stub(function(err, val) {
+            expect(err).to.be.null
+            expect(val).to.eql(10)
+            done()
+          })
+        })
+
+        it('is not the same as the original function', function() {
+          expect(this.stub).to.not.eql(this.fnToStub)
+        })
       })
     })
 
