@@ -18,9 +18,9 @@ const revertRewire = fetchInspiration.__set__({
   }
 })
 
-var stub = inspectah(fetchInspiration, 'yields', null, quoteOfTheDay)
+const stubPromise = inspectah(fetchInspiration, 'yields', null, quoteOfTheDay)
 
 
 revertRewire()
 
-module.exports = stub
+module.exports = stubPromise

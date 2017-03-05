@@ -14,14 +14,19 @@ though the code is actually broken.
 
 ** Examples
 
-See the ~/examples/~ directory in this repo. The ~problem~ directory
-contains an example demonstrating the risk that lazy stubbing
-creates. The ~fetchYellingInspiraction~ method expects
-~fetchInspiration~ to return a promise. The stub for
+See the ~/examples/~ directory in this repo.
+
+The ~problem~ directory contains an example demonstrating the risk
+that lazy stubbing creates. The ~fetchYellingInspiration~ method
+expects ~fetchInspiration~ to return a promise. The stub for
 ~fetchInspiration~ in ~fetch_yelling_inspiration_test.js~ returns a
 promise. However, the function in ~fetch_inspiration.js~ actually
-takes a callback, rather than returning a promise. The tests in this
-directory pass even though the code is broken (due to the stub making
-an invalid assumption). The ~solution~ directory shows how
-~inSpectahDeck~ is used to mitigate this issue. The tests in this
+takes a callback and does not return a promise. The tests in this
+directory pass even though the code is broken (due to the stub which
+makes an invalid assumption).
+
+The ~solution~ directory shows how ~inSpectahDeck~ is used to mitigate
+this issue. The test for ~fetchInspiration~ also exports a stub for
+that method. Since the stub used in the test for
+~fetchYellingInspiration~ is based off a test, the tests in this
 directory fail as expected.

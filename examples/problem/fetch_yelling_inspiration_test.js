@@ -10,14 +10,15 @@ const fetchYellingInspiration = rewire('./fetch_yelling_inspiration')
 describe('fetchYellingInspiration', function() {
   beforeEach(function() {
     this.revertRewire = fetchYellingInspiration.__set__({
-      fetchInspiration: function(done) {
-        done(null, quoteOfTheDay)
+      fetchInspiration: function() {
+        return Promise.resolve(quoteOfTheDay)
       }
     })
   })
   it('yells at you, but is inspiring', function () {
-    fetchYellingInspiration(function(err, yellingQuote) {
-      assert.equal(yellingQuote, expectedYelling)
-    })
+    return fetchYellingInspiration()
+      .then(function(yellingQuote) {
+        assert.equal(yellingQuote, expectedYelling)
+      })
   })
 })

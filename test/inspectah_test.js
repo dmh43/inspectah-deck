@@ -17,6 +17,7 @@ describe('inspectah', function () {
           return 3
         }
         this.outcomeOrStubPromise = inspectah(this.fnToStub, 'returns', 3)
+        return this.outcomeOrStubPromise
       })
 
       it('resolves to a stub', function () {
