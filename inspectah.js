@@ -7,21 +7,25 @@ const protectYaNeck = {
   areEqual: function (result, expected, stack) {
     const areEqual = _.isEqual(result, expected)
     if (!areEqual) {
-      console.log("The assumption this stub makes is invalid!")
-      console.log(stack)
-      console.log(_.toString(result))
-      console.log("is not equal to")
-      console.log(_.toString(expected))
+      return [
+        "The assumption this stub makes is invalid!",
+        stack,
+        _.toString(result),
+        "is not equal to",
+        _.toString(expected)
+      ].join('\n')
     }
   },
   check: function (result, expected, checker, failMessage, stack) {
     const success = checker(result, expected)
     if (!success) {
-      console.log("The assumption this stub makes is invalid!")
-      console.log(stack)
-      console.log(_.toString(result))
-      console.log(failMessage)
-      console.log(_.toString(expected))
+      return [
+        "The assumption this stub makes is invalid!",
+        stack,
+        _.toString(result),
+        failMessage,
+        _.toString(expected)
+      ].join('\n')
     }
   }
 }
@@ -32,7 +36,7 @@ const inspectahDeck = {
       return {callback: true, calledWith: args}
     },
     assessOutcome: function (result, claimToTest, stack) {
-      protectYaNeck.areEqual(result, claimToTest.calledWith, stack)
+      return protectYaNeck.areEqual(result, claimToTest.calledWith, stack)
     }
   },
   throws: {
@@ -40,7 +44,7 @@ const inspectahDeck = {
       return {errorThrown: args[0]}
     },
     assessOutcome: function (result, claimToTest, stack) {
-      protectYaNeck.check(result.error, claimToTest.errorThrown, function(val, prototype) {
+      return protectYaNeck.check(result.error, claimToTest.errorThrown, function(val, prototype) {
         return val instanceof prototype
       }, "is not an instance of", stack)
     }
@@ -50,7 +54,7 @@ const inspectahDeck = {
       return {returnVal: args[0]}
     },
     assessOutcome: function (result, claimToTest, stack) {
-      protectYaNeck.areEqual(result.result, claimToTest.returnVal, stack)
+      return protectYaNeck.areEqual(result.result, claimToTest.returnVal, stack)
     }
   }
 }
@@ -71,13 +75,13 @@ const inspectah = function (fn, action) {
       fn(function() {
         outcome = inspectahDeck[action].assessOutcome([...arguments], claimToTest, stack)
         if (outcome) {
-          reject(outcome)
+          reject(new Error(outcome))
         } else {
           resolve(stub)
         }
       })
     } else if (claimToTest.promise) {
-      reject("To be implemented!")
+      reject(new Error("To be implemented!"))
     } else {
       var error, result
       try {
@@ -87,7 +91,7 @@ const inspectah = function (fn, action) {
       }
       outcome = inspectahDeck[action].assessOutcome({error: error, result: result}, claimToTest, stack)
       if (outcome) {
-        reject(outcome)
+        reject(new Error(outcome))
       } else {
         resolve(stub)
       }

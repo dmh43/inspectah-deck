@@ -1,41 +1,36 @@
 const sinon = require('sinon')
-const expect = require('chai').expect
+const chai = require('chai')
+const chaiAsPromised = require("chai-as-promised")
+const sinonChai = require("sinon-chai")
+chai.use(chaiAsPromised)
+chai.use(sinonChai)
 
-const rewire = require('rewire')
-const inspectah = rewire('../inspectah')
+const expect = chai.expect
 
-inspectah(JSON.parse.bind(this, "(}"), 'throws', SyntaxError)
-JSON.stringify.bind(this, 10)
+const inspectah = require('../inspectah')
 
 describe('inspectah', function () {
-  beforeEach(function() {
-    inspectah.__set__({console: {log: sinon.stub()}})
-  })
-
   describe('returns', function () {
     describe('the assumption made by the stub is valid', function() {
       beforeEach(function() {
         const fnToStub = function () {
           return 3
         }
-        return inspectah(fnToStub, 'returns', 3)
+        this.result = inspectah(fnToStub, 'returns', 3)
       })
 
-      it('does nothing', function () {
-        expect(console.log).to.not.have.been.called
+      it('resolves to a stub', function () {
+        return expect(this.result).to.eventually.be.a('function')
       })
     })
 
     describe('the assumption made by the stub is incorrect', function() {
-      beforeEach(function() {
+      it('rejects with an error containing the failure summary', function () {
         const fnToStub = function () {
           return 3
         }
-        return inspectah(fnToStub, 'returns', 4)
-      })
-
-      it('reports the inconsistency to the console', function () {
-        expect(console.log).to.have.been.called
+        return expect(inspectah(fnToStub, 'returns', 4))
+          .to.be.rejectedWith('The assumption this stub makes is invalid!')
       })
     })
   })
@@ -46,24 +41,22 @@ describe('inspectah', function () {
         const fnToStub = function (){
           throw new Error()
         }
-        return inspectah(fnToStub, 'throws', Error)
+        this.result = inspectah(fnToStub, 'throws', Error)
+        return this.result
       })
 
-      it('does nothing', function() {
-        expect(console.log).to.not.have.been.called
+      it('resolves to a stub', function() {
+        return expect(this.result).to.eventually.be.a('function')
       })
     })
 
     describe('the assumption made by the stub is incorrect', function() {
-      beforeEach(function() {
+      it('rejects with an error containing the failure summary', function () {
         const fnToStub = function () {
-          throw new SyntaxError()
+          throw new Error()
         }
-        return inspectah(fnToStub, 'throws', Error)
-      })
-
-      it('reports the inconsistency to the console', function () {
-        expect(console.log).to.have.been.called
+        return expect(inspectah(fnToStub, 'throws', SyntaxError))
+          .to.be.rejectedWith('The assumption this stub makes is invalid!')
       })
     })
   })
@@ -74,24 +67,22 @@ describe('inspectah', function () {
         const fnToStub = function(done) {
           done(null, 10)
         }
-        return inspectah(fnToStub, 'yields', null, 10)
+        this.result = inspectah(fnToStub, 'yields', null, 10)
+        return this.result
       })
 
-      it('does nothing', function() {
-        expect(console.log).to.not.have.been.called
+      it('resolves to a stub', function() {
+        return expect(this.result).to.eventually.be.a('function')
       })
     })
 
     describe('the assumption made by the stub is incorrect', function() {
-      beforeEach(function() {
+      it('rejects with an error containing the failure summary', function () {
         const fnToStub = function(done) {
           done(null, 10)
         }
-        return inspectah(fnToStub, 'yields', null, 5)
-      })
-
-      it('reports the inconsistency to the console', function () {
-        expect(console.log).to.have.been.called
+        return expect(inspectah(fnToStub, 'yields', null, 5))
+          .to.be.rejectedWith('The assumption this stub makes is invalid!')
       })
     })
   })
